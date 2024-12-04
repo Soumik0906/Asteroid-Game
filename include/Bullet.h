@@ -1,8 +1,8 @@
 #pragma once
 #include "Entity.h"
 
-class Bullet : public Entity {
+class Bullet final : public Entity {
 public:
-    Bullet(sf::Texture& texture, sf::Vector2f position, float rotation);
-    bool isOutOfBounds(sf::RenderWindow& window);
+    Bullet(const sf::Texture& texture, sf::Vector2f position, float spaceshipRotation);
+    bool isOutOfBounds(const sf::RenderWindow& window) const;
 };

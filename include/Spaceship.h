@@ -6,7 +6,7 @@ public:
     float rotationSpeed;
     float acceleration;
 
-    Spaceship(sf::Texture& texture);
+    Spaceship(const sf::Texture& texture);
     void handleInput();
     void update(float dt) override;
 };

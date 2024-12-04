@@ -2,7 +2,7 @@
 
 Entity::Entity() : velocity(0.f, 0.f), isActive(true) {}
 
-void Entity::update(float dt) {
+void Entity::update(const float dt) {
     sprite.move(velocity * dt);
 }
 

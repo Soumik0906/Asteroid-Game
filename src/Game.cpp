@@ -19,7 +19,7 @@ Game::~Game() {
 void Game::run() {
     sf::Clock clock;
     while (window.isOpen()) {
-        float dt = clock.restart().asSeconds();
+        const float dt = clock.restart().asSeconds();
         handleEvents();
         update(dt);
         render();
@@ -27,7 +27,7 @@ void Game::run() {
 }
 
 void Game::handleEvents() {
-    sf::Event event;
+    sf::Event event{};
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed)
             window.close();
@@ -37,7 +37,7 @@ void Game::handleEvents() {
     }
 }
 
-void Game::update(float dt) {
+void Game::update(const float dt) {
     spaceship->update(dt);
 
     for (auto& asteroid : asteroids) {
@@ -47,8 +47,8 @@ void Game::update(float dt) {
     for (auto& bullet : bullets)
         bullet.update(dt);
 
-    bullets.erase(std::remove_if(bullets.begin(), bullets.end(),
-                                 [this](Bullet& b) { return b.isOutOfBounds(window); }),
+    bullets.erase(std::ranges::remove_if(bullets,
+                                         [this](const Bullet& b) { return b.isOutOfBounds(window); }).begin(),
                   bullets.end());
 
     checkCollisions();
