@@ -8,6 +8,12 @@ Spaceship::Spaceship(const sf::Texture& texture) {
     sprite.setPosition(Constants::SIZE_X / 2.f, Constants::SIZE_Y / 2.f); // Initial position
     rotationSpeed = Constants::rotationSpeed;
     acceleration =  Constants::acceleration;
+
+    if (!spaceshipSoundBuffer.loadFromFile("../../assets/sounds/spaceship_engine.wav")) {
+        throw std::runtime_error("Failed to load spaceship_engine.wav");
+    }
+    spaceshipSound.setBuffer(spaceshipSoundBuffer);
+    spaceshipSound.setVolume(10.f);
 }
 
 void Spaceship::handleInput() {
@@ -29,6 +35,8 @@ void Spaceship::handleInput() {
 
     // Apply thrust (move in the direction of the spaceship's rotation)
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+        // Play engine sound
+        spaceshipSound.play();
         // Thrust based on current rotation (move in the direction the spaceship is facing)
         velocity.x += xIncrement;
         velocity.y += yIncrement;

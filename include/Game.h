@@ -2,6 +2,7 @@
 #include "Spaceship.h"
 #include "Asteroid.h"
 #include "Bullet.h"
+#include <SFML/Audio.hpp>
 #include <vector>
 
 class Game {
@@ -11,6 +12,12 @@ public:
     Spaceship* spaceship;
     std::vector<Asteroid> asteroids;
     std::vector<Bullet> bullets;
+
+    sf::SoundBuffer bulletFireBuffer;
+    sf::Sound bulletFireSound;
+
+    sf::SoundBuffer asteroidHitBuffer;
+    sf::Sound asteroidHitSound;
 
     Game();
     ~Game();

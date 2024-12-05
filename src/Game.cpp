@@ -1,13 +1,26 @@
 #include "Game.h"
 #include "Utilities.h"
+#include <SFML/Audio.hpp>
 
 Game::Game() : window(sf::VideoMode(Constants::SIZE_X, Constants::SIZE_Y), "Asteroids") {
+    // Load game textures
     spaceshipTexture.loadFromFile("../../assets/images/spaceship.png");
     asteroidTexture.loadFromFile("../../assets/images/asteroid.png");
     bulletTexture.loadFromFile("../../assets/images/bullet.png");
 
+    // Load game sounds
+    if (!bulletFireBuffer.loadFromFile("../../assets/sounds/bullet_fire.wav")) {
+        throw std::runtime_error("Failed to load bullet_fire.wav");
+    }
+    bulletFireSound.setBuffer(bulletFireBuffer);
+
+    if (!asteroidHitBuffer.loadFromFile("../../assets/sounds/asteroid_hit.wav")) {
+        throw std::runtime_error("Failed to load asteroid_hit.wav");
+    }
+    asteroidHitSound.setBuffer(asteroidHitBuffer);
+
     spaceship = new Spaceship(spaceshipTexture);
-    spaceship->sprite.setScale(1.5f, 1.5f);
+    spaceship->sprite.setScale(Constants::spaceShipScale, Constants::spaceShipScale);
 
     // Initial asteroids
     for (int i = 0; i < 7; ++i)
@@ -34,6 +47,7 @@ void Game::handleEvents() {
         if (event.type == sf::Event::Closed)
             window.close();
         if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
+            bulletFireSound.play();
             bullets.emplace_back(bulletTexture, spaceship->sprite.getPosition(), spaceship->sprite.getRotation());
         }
     }
@@ -86,6 +100,8 @@ void Game::checkCollisions() {
     for (auto& bullet : bullets) {
         for (auto& asteroid : asteroids) {
             if (bullet.isActive && asteroid.isActive && bullet.getBounds().intersects(asteroid.getBounds())) {
+                asteroidHitSound.play();
+
                 bullet.isActive = false;
                 asteroid.isActive = false;
 
