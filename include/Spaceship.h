@@ -7,7 +7,7 @@ private:
     float acceleration;
 
 public:
-    Spaceship(const sf::Texture& texture);
+    explicit Spaceship(const sf::Texture& texture);
     void handleInput();
     void update(float dt) override;
 };

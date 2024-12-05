@@ -1,15 +1,16 @@
 #include "Game.h"
+#include "Utilities.h"
 
-Game::Game() : window(sf::VideoMode(800u, 600u), "Asteroids") {
-    spaceshipTexture.loadFromFile("../assets/images/spaceship.png");
-    asteroidTexture.loadFromFile("../assets/images/asteroid.png");
-    bulletTexture.loadFromFile("../assets/images/bullet.png");
+Game::Game() : window(sf::VideoMode(Constants::SIZE_X, Constants::SIZE_Y), "Asteroids") {
+    spaceshipTexture.loadFromFile("../../assets/images/spaceship.png");
+    asteroidTexture.loadFromFile("../../assets/images/asteroid.png");
+    bulletTexture.loadFromFile("../../assets/images/bullet.png");
 
     spaceship = new Spaceship(spaceshipTexture);
     spaceship->sprite.setScale(1.5f, 1.5f);
 
     // Initial asteroids
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 7; ++i)
         spawnAsteroid(3);
 }
 
@@ -66,13 +67,18 @@ void Game::render() {
 }
 
 void Game::spawnAsteroid(int size) {
-    sf::Vector2f position(rand() % 800, rand() % 600);
-    sf::Vector2f velocity(rand() % 100 - 50, rand() % 100 - 50);
+    sf::Vector2f position(Utils::getRandomInRange(0.f, window.getSize().x),
+        Utils::getRandomInRange(0, window.getSize().y));
+
+    sf::Vector2f velocity(Utils::getRandomInRange(-Constants::maxAsteroidSpeed, Constants::maxAsteroidSpeed),
+        Utils::getRandomInRange(-Constants::maxAsteroidSpeed, Constants::maxAsteroidSpeed));
+
     asteroids.emplace_back(asteroidTexture, size, position, velocity);
 }
 
 void Game::spawnAsteroid(int size, const sf::Vector2f& position) {
-    sf::Vector2f velocity(rand() % 100 - 50, rand() % 100 - 50);
+    sf::Vector2f velocity(Utils::getRandomInRange(-Constants::maxAsteroidSpeed, Constants::maxAsteroidSpeed),
+        Utils::getRandomInRange(-Constants::maxAsteroidSpeed, Constants::maxAsteroidSpeed));
     asteroids.emplace_back(asteroidTexture, size, position, velocity);
 }
 
@@ -83,8 +89,9 @@ void Game::checkCollisions() {
                 bullet.isActive = false;
                 asteroid.isActive = false;
 
-                // Generate more asteroids in the same position that are smaller in size
+                // Generate more asteroids in the same position that are smaller
                 if (asteroid.size > 1) {
+                    spawnAsteroid(asteroid.size - 1, asteroid.sprite.getPosition());
                     spawnAsteroid(asteroid.size - 1, asteroid.sprite.getPosition());
                     spawnAsteroid(asteroid.size - 1, asteroid.sprite.getPosition());
                 }

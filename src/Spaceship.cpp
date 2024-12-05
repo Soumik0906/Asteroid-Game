@@ -1,12 +1,13 @@
 #include "Spaceship.h"
+#include "Utilities.h"
 #include <cmath>
 
 Spaceship::Spaceship(const sf::Texture& texture) {
     sprite.setTexture(texture);
     sprite.setOrigin(static_cast<float>(texture.getSize().x) / 2.f, static_cast<float>(texture.getSize().y) / 2.f);
-    sprite.setPosition(400.f, 300.f); // Initial position
-    rotationSpeed = 5.f;           // Degrees per second
-    acceleration = 30.f;            // Pixels per second^2
+    sprite.setPosition(Constants::SIZE_X / 2.f, Constants::SIZE_Y / 2.f); // Initial position
+    rotationSpeed = Constants::rotationSpeed;
+    acceleration =  Constants::acceleration;
 }
 
 void Spaceship::handleInput() {
@@ -33,26 +34,26 @@ void Spaceship::handleInput() {
         velocity.y += yIncrement;
     }
 
-    // if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-    //     velocity.x = std::max(velocity.x - xIncrement, 0.0f);
-    //     velocity.y = std::max(velocity.y - yIncrement, 0.0f);
-    // }
-
     // Clamp the velocity to the maximum speed (maxSpeed)
-    float speed = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
-    if (constexpr float maxSpeed = 300.f; speed > maxSpeed) {
-        velocity.x = (velocity.x / speed) * maxSpeed;
-        velocity.y = (velocity.y / speed) * maxSpeed;
+    if (float speed = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y); speed > Constants::maxShipSpeed) {
+        velocity.x = (velocity.x / speed) * Constants::maxShipSpeed;
+        velocity.y = (velocity.y / speed) * Constants::maxShipSpeed;
     }
 }
 
-void Spaceship::update(float dt) {
+void Spaceship::update(const float dt) {
     handleInput();
+
+    // Apply friction scaled by delta time
+    velocity.x -= velocity.x * Constants::frictionFactor * 0.016f;
+    velocity.y -= velocity.y * Constants::frictionFactor * 0.016f;
+
+
     Entity::update(dt);
 
     // Screen wrapping
-    if (sprite.getPosition().x < 0)     sprite.setPosition(800.f, sprite.getPosition().y);
-    if (sprite.getPosition().x > 800.f) sprite.setPosition(0.f, sprite.getPosition().y);
-    if (sprite.getPosition().y < 0)     sprite.setPosition(sprite.getPosition().x, 600.f);
-    if (sprite.getPosition().y > 600.f) sprite.setPosition(sprite.getPosition().x, 0.f);
+    if (sprite.getPosition().x < 0.f)     sprite.setPosition(Constants::SIZE_X, sprite.getPosition().y);
+    if (sprite.getPosition().x > Constants::SIZE_X) sprite.setPosition(0.f, sprite.getPosition().y);
+    if (sprite.getPosition().y < 0.f)     sprite.setPosition(sprite.getPosition().x, Constants::SIZE_Y);
+    if (sprite.getPosition().y > Constants::SIZE_Y) sprite.setPosition(sprite.getPosition().x, 0.f);
 }

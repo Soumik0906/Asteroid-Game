@@ -11,7 +11,7 @@ public:
     virtual ~Entity() = default;
 
     virtual void update(float dt);
-    virtual void draw(sf::RenderWindow& window);
+    virtual void draw(sf::RenderWindow &window);
 
     sf::FloatRect getBounds() const;
 };

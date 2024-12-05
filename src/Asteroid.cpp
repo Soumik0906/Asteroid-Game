@@ -1,4 +1,5 @@
 #include "Asteroid.h"
+#include "Utilities.h"
 
 Asteroid::Asteroid(const sf::Texture& texture, const int size, const sf::Vector2f& position, const sf::Vector2f& velocity)
     : size(size) {
@@ -13,8 +14,8 @@ void Asteroid::update(const float dt) {
     Entity::update(dt);
 
     // Screen wrapping
-    if (sprite.getPosition().x < 0) sprite.setPosition(800.f, sprite.getPosition().y);
-    if (sprite.getPosition().x > 800.f) sprite.setPosition(0.f, sprite.getPosition().y);
-    if (sprite.getPosition().y < 0) sprite.setPosition(sprite.getPosition().x, 600.f);
-    if (sprite.getPosition().y > 600.f) sprite.setPosition(sprite.getPosition().x, 0.f);
+    if (sprite.getPosition().x < 0) sprite.setPosition(Constants::SIZE_X, sprite.getPosition().y);
+    if (sprite.getPosition().x > Constants::SIZE_X) sprite.setPosition(0.f, sprite.getPosition().y);
+    if (sprite.getPosition().y < 0) sprite.setPosition(sprite.getPosition().x, Constants::SIZE_Y);
+    if (sprite.getPosition().y > Constants::SIZE_Y) sprite.setPosition(sprite.getPosition().x, 0.f);
 }
