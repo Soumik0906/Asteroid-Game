@@ -7,6 +7,11 @@ Game::Game() : window(sf::VideoMode(Constants::SIZE_X, Constants::SIZE_Y), "Aste
     spaceshipTexture.loadFromFile("../../assets/images/spaceship.png");
     asteroidTexture.loadFromFile("../../assets/images/asteroid.png");
     bulletTexture.loadFromFile("../../assets/images/bullet.png");
+    backgroundTexture.loadFromFile("../../assets/images/space.jpg");
+
+    // Add background image
+    backgroundSprite.setTexture(backgroundTexture);
+    backgroundSprite.setScale(1.f, 2.f);
 
     // Load game sounds
     if (!bulletFireBuffer.loadFromFile("../../assets/sounds/bullet_fire.wav")) {
@@ -72,6 +77,7 @@ void Game::update(const float dt) {
 
 void Game::render() {
     window.clear();
+    window.draw(backgroundSprite);
     spaceship->draw(window);
     for (auto& asteroid : asteroids)
         asteroid.draw(window);

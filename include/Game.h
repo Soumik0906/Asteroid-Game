@@ -8,7 +8,8 @@
 class Game {
 public:
     sf::RenderWindow window;
-    sf::Texture spaceshipTexture, asteroidTexture, bulletTexture;
+    sf::Texture spaceshipTexture, asteroidTexture, bulletTexture, backgroundTexture;
+    sf::Sprite backgroundSprite;
     Spaceship* spaceship;
     std::vector<Asteroid> asteroids;
     std::vector<Bullet> bullets;
