@@ -8,7 +8,7 @@ public:
     bool isActive;
 
     Entity();
-    virtual ~Entity() {}
+    virtual ~Entity() = default;
 
     virtual void update(float dt);
     virtual void draw(sf::RenderWindow& window);

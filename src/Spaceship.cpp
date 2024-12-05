@@ -5,7 +5,7 @@ Spaceship::Spaceship(const sf::Texture& texture) {
     sprite.setTexture(texture);
     sprite.setOrigin(static_cast<float>(texture.getSize().x) / 2.f, static_cast<float>(texture.getSize().y) / 2.f);
     sprite.setPosition(400.f, 300.f); // Initial position
-    rotationSpeed = 15.f;           // Degrees per second
+    rotationSpeed = 5.f;           // Degrees per second
     acceleration = 30.f;            // Pixels per second^2
 }
 
@@ -21,7 +21,7 @@ void Spaceship::handleInput() {
     }
 
     // Get the current rotation of the spaceship (in radians)
-    const double rotationInRadians = (sprite.getRotation() - 90.f) * 3.14159265f / 180.f;
+    const double rotationInRadians = (sprite.getRotation() - 90.f) * M_PI / 180.f;
 
     const float xIncrement = static_cast<float>(cos(rotationInRadians)) * acceleration * 0.016f;
     const float yIncrement = static_cast<float>(sin(rotationInRadians)) * acceleration * 0.016f;
@@ -40,7 +40,7 @@ void Spaceship::handleInput() {
 
     // Clamp the velocity to the maximum speed (maxSpeed)
     float speed = std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
-    if (constexpr float maxSpeed = 400.f; speed > maxSpeed) {
+    if (constexpr float maxSpeed = 300.f; speed > maxSpeed) {
         velocity.x = (velocity.x / speed) * maxSpeed;
         velocity.y = (velocity.y / speed) * maxSpeed;
     }
@@ -51,8 +51,8 @@ void Spaceship::update(float dt) {
     Entity::update(dt);
 
     // Screen wrapping
-    if (sprite.getPosition().x < 0) sprite.setPosition(800.f, sprite.getPosition().y);
+    if (sprite.getPosition().x < 0)     sprite.setPosition(800.f, sprite.getPosition().y);
     if (sprite.getPosition().x > 800.f) sprite.setPosition(0.f, sprite.getPosition().y);
-    if (sprite.getPosition().y < 0) sprite.setPosition(sprite.getPosition().x, 600.f);
+    if (sprite.getPosition().y < 0)     sprite.setPosition(sprite.getPosition().x, 600.f);
     if (sprite.getPosition().y > 600.f) sprite.setPosition(sprite.getPosition().x, 0.f);
 }

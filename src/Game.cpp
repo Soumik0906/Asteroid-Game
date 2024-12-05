@@ -1,12 +1,13 @@
 #include "Game.h"
 
-Game::Game() : window(sf::VideoMode(800, 600), "Asteroids") {
-    spaceshipTexture.loadFromFile("../../assets/images/spaceship.png");
-    asteroidTexture.loadFromFile("../../assets/images/asteroid.png");
-    bulletTexture.loadFromFile("../../assets/images/bullet.png");
+Game::Game() : window(sf::VideoMode(800u, 600u), "Asteroids") {
+    spaceshipTexture.loadFromFile("../assets/images/spaceship.png");
+    asteroidTexture.loadFromFile("../assets/images/asteroid.png");
+    bulletTexture.loadFromFile("../assets/images/bullet.png");
 
     spaceship = new Spaceship(spaceshipTexture);
     spaceship->sprite.setScale(1.5f, 1.5f);
+
     // Initial asteroids
     for (int i = 0; i < 5; ++i)
         spawnAsteroid(3);
@@ -70,6 +71,11 @@ void Game::spawnAsteroid(int size) {
     asteroids.emplace_back(asteroidTexture, size, position, velocity);
 }
 
+void Game::spawnAsteroid(int size, const sf::Vector2f& position) {
+    sf::Vector2f velocity(rand() % 100 - 50, rand() % 100 - 50);
+    asteroids.emplace_back(asteroidTexture, size, position, velocity);
+}
+
 void Game::checkCollisions() {
     for (auto& bullet : bullets) {
         for (auto& asteroid : asteroids) {
@@ -77,9 +83,10 @@ void Game::checkCollisions() {
                 bullet.isActive = false;
                 asteroid.isActive = false;
 
+                // Generate more asteroids in the same position that are smaller in size
                 if (asteroid.size > 1) {
-                    spawnAsteroid(asteroid.size - 1);
-                    spawnAsteroid(asteroid.size - 1);
+                    spawnAsteroid(asteroid.size - 1, asteroid.sprite.getPosition());
+                    spawnAsteroid(asteroid.size - 1, asteroid.sprite.getPosition());
                 }
             }
         }

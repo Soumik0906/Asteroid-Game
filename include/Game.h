@@ -21,5 +21,6 @@ private:
     void update(float dt);
     void render();
     void spawnAsteroid(int size);
+    void spawnAsteroid(int size, const sf::Vector2f& position);
     void checkCollisions();
 };

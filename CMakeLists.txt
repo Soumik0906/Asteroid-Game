@@ -15,7 +15,8 @@ FetchContent_MakeAvailable(SFML)
 
 include_directories(include/)
 
-add_executable(main src/main.cpp
+add_executable(main 
+        src/main.cpp
         src/Entity.cpp
         src/Spaceship.cpp
         src/Asteroid.cpp
