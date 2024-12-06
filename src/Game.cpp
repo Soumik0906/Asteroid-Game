@@ -4,7 +4,7 @@
 #include <optional>
 #include <memory>
 
-Game::Game() : lives(5), score(0) {
+Game::Game() : lives(5), score(0), paused(false) {
     window = std::make_unique<sf::RenderWindow>(sf::VideoMode(Constants::SIZE_X, Constants::SIZE_Y), "Asteroids");
 
     // Load game textures
@@ -75,7 +75,23 @@ Game::Game() : lives(5), score(0) {
         Constants::SIZE_X / 2.f - winText.getGlobalBounds().width / 2.f,
         Constants::SIZE_Y / 2.f - winText.getGlobalBounds().height / 2.f
     );
+
+    // Set up pause text
+    pauseText.setFont(font);
+    pauseText.setString("Paused");
+    pauseText.setCharacterSize(50);
+    pauseText.setFillColor(sf::Color::Yellow);
+    pauseText.setStyle(sf::Text::Bold);
+    pauseText.setPosition(
+        Constants::SIZE_X / 2.f - pauseText.getGlobalBounds().width / 2.f,
+        Constants::SIZE_Y / 2.f - pauseText.getGlobalBounds().height / 2.f
+    );
 }
+
+void Game::togglePause() {
+    paused = !paused;
+}
+
 
 void Game::checkSpaceshipAsteroidCollision() {
     for (auto& asteroid : asteroids) {
@@ -119,7 +135,9 @@ void Game::run() {
     while (window->isOpen()) {
         const float dt = clock.restart().asSeconds();
         handleEvents();
-        update(dt);
+        if (!paused) {
+            update(dt);
+        }
         render();
     }
 }
@@ -129,9 +147,13 @@ void Game::handleEvents() {
     while (window->pollEvent(event)) {
         if (event.type == sf::Event::Closed)
             window->close();
-        if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
-            bulletFireSound.play();
-            bullets.emplace_back(bulletTexture, spaceship->sprite.getPosition(), spaceship->sprite.getRotation());
+        if (event.type == sf::Event::KeyPressed) {
+            if (event.key.code == sf::Keyboard::Space) {
+                bulletFireSound.play();
+                bullets.emplace_back(bulletTexture, spaceship->sprite.getPosition(), spaceship->sprite.getRotation());
+            } else if (event.key.code == sf::Keyboard::P) {
+                togglePause();
+            }
         }
     }
 }
@@ -163,6 +185,9 @@ void Game::render() {
         bullet.draw(*window);
     window->draw(scoreText);
     window->draw(livesText);
+    if (paused) {
+        window->draw(pauseText);
+    }
     window->display();
 }
 

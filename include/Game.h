@@ -11,6 +11,10 @@
 
 class Game {
 public:
+    bool paused;
+    sf::Text pauseText;
+    void togglePause();
+
     std::unique_ptr<sf::RenderWindow> window;
     sf::Texture spaceshipTexture, asteroidTexture, bulletTexture, backgroundTexture;
     sf::Sprite backgroundSprite;
