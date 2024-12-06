@@ -2,8 +2,11 @@
 #include "Utilities.h"
 #include <SFML/Audio.hpp>
 #include <optional>
+#include <memory>
 
-Game::Game() : window(sf::VideoMode(Constants::SIZE_X, Constants::SIZE_Y), "Asteroids") {
+Game::Game() {
+    window = std::make_unique<sf::RenderWindow>(sf::VideoMode(Constants::SIZE_X, Constants::SIZE_Y), "Asteroids");
+
     // Load game textures
     spaceshipTexture.loadFromFile("../../assets/images/spaceship.png");
     asteroidTexture.loadFromFile("../../assets/images/asteroid.png");
@@ -25,7 +28,7 @@ Game::Game() : window(sf::VideoMode(Constants::SIZE_X, Constants::SIZE_Y), "Aste
     }
     asteroidHitSound.setBuffer(asteroidHitBuffer);
 
-    spaceship = new Spaceship(spaceshipTexture);
+    spaceship = std::make_unique<Spaceship>(spaceshipTexture);
     spaceship->sprite.setScale(Constants::spaceShipScale, Constants::spaceShipScale);
 
     // Initial asteroids
@@ -33,13 +36,31 @@ Game::Game() : window(sf::VideoMode(Constants::SIZE_X, Constants::SIZE_Y), "Aste
         spawnAsteroid(3);
 }
 
-Game::~Game() {
-    delete spaceship;
+void Game::checkSpaceshipAsteroidCollision() {
+    for (auto& asteroid : asteroids) {
+        if (spaceship->isActive && asteroid.isActive) {
+            float dx = spaceship->sprite.getPosition().x - asteroid.sprite.getPosition().x;
+            float dy = spaceship->sprite.getPosition().y - asteroid.sprite.getPosition().y;
+            float distance = std::sqrt(dx * dx + dy * dy);
+            float combinedRadius = spaceship->getRadius() + asteroid.getRadius();
+
+            if (std::abs(distance - combinedRadius) < 0.05f) {
+                // Handle collision (e.g., deactivate spaceship and asteroid, play sound, etc.)
+                spaceship->isActive = false;
+                asteroid.isActive = false;
+                asteroidHitSound.play();
+
+                // Respawn the spaceship after a delay
+                sf::sleep(sf::seconds(1)); // Delay before respawning the spaceship
+                spaceship->respawn();
+            }
+        }
+    }
 }
 
 void Game::run() {
     sf::Clock clock;
-    while (window.isOpen()) {
+    while (window->isOpen()) {
         const float dt = clock.restart().asSeconds();
         handleEvents();
         update(dt);
@@ -49,9 +70,9 @@ void Game::run() {
 
 void Game::handleEvents() {
     sf::Event event{};
-    while (window.pollEvent(event)) {
+    while (window->pollEvent(event)) {
         if (event.type == sf::Event::Closed)
-            window.close();
+            window->close();
         if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
             bulletFireSound.play();
             bullets.emplace_back(bulletTexture, spaceship->sprite.getPosition(), spaceship->sprite.getRotation());
@@ -70,21 +91,21 @@ void Game::update(const float dt) {
         bullet.update(dt);
 
     bullets.erase(std::ranges::remove_if(bullets,
-                                         [this](const Bullet& b) { return b.isOutOfBounds(window); }).begin(),
+                                         [this](const Bullet& b) { return b.isOutOfBounds(*window); }).begin(),
                   bullets.end());
 
     checkCollisions();
 }
 
 void Game::render() {
-    window.clear();
-    window.draw(backgroundSprite);
-    spaceship->draw(window);
+    window->clear();
+    window->draw(backgroundSprite);
+    spaceship->draw(*window);
     for (auto& asteroid : asteroids)
-        asteroid.draw(window);
+        asteroid.draw(*window);
     for (auto& bullet : bullets)
-        bullet.draw(window);
-    window.display();
+        bullet.draw(*window);
+    window->display();
 }
 
 sf::Vector2f generateRandomVelocity() {
@@ -96,14 +117,16 @@ sf::Vector2f generateRandomVelocity() {
 
 void Game::spawnAsteroid(int size, const std::optional<sf::Vector2f>& position) {
     sf::Vector2f finalPosition = position.value_or(sf::Vector2f(
-        Utils::getRandomInRange(0.f, window.getSize().x),
-        Utils::getRandomInRange(0, window.getSize().y)));
+        Utils::getRandomInRange(0.f, window->getSize().x),
+        Utils::getRandomInRange(0, window->getSize().y)));
     sf::Vector2f velocity = generateRandomVelocity();
     asteroids.emplace_back(asteroidTexture, size, finalPosition, velocity);
 }
 
 
 void Game::checkCollisions() {
+    checkSpaceshipAsteroidCollision();
+
     for (auto& bullet : bullets) {
         for (auto& asteroid : asteroids) {
             if (bullet.isActive && asteroid.isActive && bullet.getBounds().intersects(asteroid.getBounds())) {

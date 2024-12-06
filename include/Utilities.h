@@ -1,11 +1,13 @@
-#pragma once
+#ifndef UTILITIES_H
+#define UTILITIES_H
+
 #include <random>
 
 namespace Constants {
     inline constexpr float maxShipSpeed = 450.f;
-    inline constexpr float frictionFactor = 0.02f;
-    inline constexpr float rotationSpeed = 5.f;    // Degrees per second
-    inline constexpr float acceleration = 120.f;    // Pixels per second^2
+    inline constexpr float frictionFactor = 0.7f;
+    inline constexpr float rotationSpeed = 250.f;    // Degrees per second
+    inline constexpr float acceleration = 800.f;    // Pixels per second^2
     inline constexpr float bulletSpeed = 550.f;
     inline constexpr float maxAsteroidSpeed = 100.f;
     inline constexpr float spaceShipScale = 2.f;
@@ -22,3 +24,5 @@ namespace Utils {
         return distribution(generator);
     }
 }
+
+#endif // UTILITIES_H

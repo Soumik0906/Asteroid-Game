@@ -1,17 +1,20 @@
-#pragma once
+#ifndef GAME_H
+#define GAME_H
+
 #include "Spaceship.h"
 #include "Asteroid.h"
 #include "Bullet.h"
 #include <SFML/Audio.hpp>
 #include <vector>
 #include <optional>
+#include <memory>
 
 class Game {
 public:
-    sf::RenderWindow window;
+    std::unique_ptr<sf::RenderWindow> window;
     sf::Texture spaceshipTexture, asteroidTexture, bulletTexture, backgroundTexture;
     sf::Sprite backgroundSprite;
-    Spaceship* spaceship;
+    std::unique_ptr<Spaceship> spaceship;
     std::vector<Asteroid> asteroids;
     std::vector<Bullet> bullets;
 
@@ -22,7 +25,7 @@ public:
     sf::Sound asteroidHitSound;
 
     Game();
-    ~Game();
+    ~Game() = default;
     void run();
 
 private:
@@ -31,4 +34,6 @@ private:
     void render();
     void spawnAsteroid(int size, const std::optional<sf::Vector2f>& position = std::nullopt);
     void checkCollisions();
+    void checkSpaceshipAsteroidCollision();
 };
+#endif // GAME_H
