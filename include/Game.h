@@ -4,6 +4,7 @@
 #include "Bullet.h"
 #include <SFML/Audio.hpp>
 #include <vector>
+#include <optional>
 
 class Game {
 public:
@@ -28,7 +29,6 @@ private:
     void handleEvents();
     void update(float dt);
     void render();
-    void spawnAsteroid(int size);
-    void spawnAsteroid(int size, const sf::Vector2f& position);
+    void spawnAsteroid(int size, const std::optional<sf::Vector2f>& position = std::nullopt);
     void checkCollisions();
 };

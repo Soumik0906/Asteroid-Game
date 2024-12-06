@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "Utilities.h"
 #include <SFML/Audio.hpp>
+#include <optional>
 
 Game::Game() : window(sf::VideoMode(Constants::SIZE_X, Constants::SIZE_Y), "Asteroids") {
     // Load game textures
@@ -86,21 +87,21 @@ void Game::render() {
     window.display();
 }
 
-void Game::spawnAsteroid(int size) {
-    sf::Vector2f position(Utils::getRandomInRange(0.f, window.getSize().x),
-        Utils::getRandomInRange(0, window.getSize().y));
-
-    sf::Vector2f velocity(Utils::getRandomInRange(-Constants::maxAsteroidSpeed, Constants::maxAsteroidSpeed),
-        Utils::getRandomInRange(-Constants::maxAsteroidSpeed, Constants::maxAsteroidSpeed));
-
-    asteroids.emplace_back(asteroidTexture, size, position, velocity);
+sf::Vector2f generateRandomVelocity() {
+    return sf::Vector2f(
+        Utils::getRandomInRange(-Constants::maxAsteroidSpeed, Constants::maxAsteroidSpeed),
+        Utils::getRandomInRange(-Constants::maxAsteroidSpeed, Constants::maxAsteroidSpeed)
+    );
 }
 
-void Game::spawnAsteroid(int size, const sf::Vector2f& position) {
-    sf::Vector2f velocity(Utils::getRandomInRange(-Constants::maxAsteroidSpeed, Constants::maxAsteroidSpeed),
-        Utils::getRandomInRange(-Constants::maxAsteroidSpeed, Constants::maxAsteroidSpeed));
-    asteroids.emplace_back(asteroidTexture, size, position, velocity);
+void Game::spawnAsteroid(int size, const std::optional<sf::Vector2f>& position) {
+    sf::Vector2f finalPosition = position.value_or(sf::Vector2f(
+        Utils::getRandomInRange(0.f, window.getSize().x),
+        Utils::getRandomInRange(0, window.getSize().y)));
+    sf::Vector2f velocity = generateRandomVelocity();
+    asteroids.emplace_back(asteroidTexture, size, finalPosition, velocity);
 }
+
 
 void Game::checkCollisions() {
     for (auto& bullet : bullets) {
@@ -113,9 +114,9 @@ void Game::checkCollisions() {
 
                 // Generate more asteroids in the same position that are smaller
                 if (asteroid.size > 1) {
-                    spawnAsteroid(asteroid.size - 1, asteroid.sprite.getPosition());
-                    spawnAsteroid(asteroid.size - 1, asteroid.sprite.getPosition());
-                    spawnAsteroid(asteroid.size - 1, asteroid.sprite.getPosition());
+                    for (int i { 0 }; i < 3; ++i) {
+                        spawnAsteroid(asteroid.size - 1, asteroid.sprite.getPosition());
+                    }
                 }
             }
         }
