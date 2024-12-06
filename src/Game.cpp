@@ -4,7 +4,7 @@
 #include <optional>
 #include <memory>
 
-Game::Game() : lives(5) {
+Game::Game() : lives(5), score(0) {
     window = std::make_unique<sf::RenderWindow>(sf::VideoMode(Constants::SIZE_X, Constants::SIZE_Y), "Asteroids");
 
     // Load game textures
@@ -35,10 +35,12 @@ Game::Game() : lives(5) {
     for (int i = 0; i < 7; ++i)
         spawnAsteroid(3);
 
-    // Load font and set up game over text
+    // Load font
     if (!font.loadFromFile("../../assets/fonts/arial.ttf")) {
         throw std::runtime_error("Failed to load arial.ttf");
     }
+
+    // Set up game over text
     gameOverText.setFont(font);
     gameOverText.setString("Game Over!");
     gameOverText.setCharacterSize(50);
@@ -47,6 +49,31 @@ Game::Game() : lives(5) {
     gameOverText.setPosition(
         Constants::SIZE_X / 2.f - gameOverText.getGlobalBounds().width / 2.f,
         Constants::SIZE_Y / 2.f - gameOverText.getGlobalBounds().height / 2.f
+    );
+
+    // Set up score text
+    scoreText.setFont(font);
+    scoreText.setCharacterSize(30);
+    scoreText.setFillColor(sf::Color::White);
+    scoreText.setPosition(10.f, 10.f);
+    scoreText.setString("Score: 0");
+
+    // Set up lives text
+    livesText.setFont(font);
+    livesText.setCharacterSize(30);
+    livesText.setFillColor(sf::Color::White);
+    livesText.setPosition(Constants::SIZE_X - 110.f, 10.f);
+    livesText.setString("Lives: " + std::to_string(lives));
+
+    // Set up win text
+    winText.setFont(font);
+    winText.setString("You Win!");
+    winText.setCharacterSize(50);
+    winText.setFillColor(sf::Color::Green);
+    winText.setStyle(sf::Text::Bold);
+    winText.setPosition(
+        Constants::SIZE_X / 2.f - winText.getGlobalBounds().width / 2.f,
+        Constants::SIZE_Y / 2.f - winText.getGlobalBounds().height / 2.f
     );
 }
 
@@ -59,15 +86,16 @@ void Game::checkSpaceshipAsteroidCollision() {
             float combinedRadius = spaceship->getRadius() + asteroid.getRadius();
 
             if (distance < combinedRadius) {
-                // Handle collision (e.g., deactivate spaceship and asteroid, play sound, etc.)
+                // Handle collision
                 spaceship->isActive = false;
-                asteroid.isActive = false;
+                //asteroid.isActive = false;
                 asteroidHitSound.play();
 
                 lives--;
+                livesText.setString("Lives: " + std::to_string(lives));
                 if (lives > 0) {
-                    sf::sleep(sf::seconds(1)); // Delay before respawning the spaceship
-                    restartGame();
+                    sf::sleep(sf::seconds(0.5)); // Delay before respawning the spaceship
+                    spaceship->respawn();
                 } else {
                     gameOver();
                 }
@@ -133,6 +161,8 @@ void Game::render() {
         asteroid.draw(*window);
     for (auto& bullet : bullets)
         bullet.draw(*window);
+    window->draw(scoreText);
+    window->draw(livesText);
     window->display();
 }
 
@@ -143,10 +173,28 @@ sf::Vector2f generateRandomVelocity() {
     );
 }
 
-void Game::spawnAsteroid(int size, const std::optional<sf::Vector2f>& position) {
-    sf::Vector2f finalPosition = position.value_or(sf::Vector2f(
-        Utils::getRandomInRange(0.f, window->getSize().x),
-        Utils::getRandomInRange(0, window->getSize().y)));
+void Game::spawnAsteroid(int size, const std::optional<sf::Vector2f>& position, bool checkSpaceshipPosition) {
+    sf::Vector2f finalPosition;
+    bool validPosition = false;
+
+    while (!validPosition) {
+        finalPosition = position.value_or(sf::Vector2f(
+            Utils::getRandomInRange(0.f, window->getSize().x),
+            Utils::getRandomInRange(0.f, window->getSize().y)));
+
+        if (checkSpaceshipPosition) {
+            float dx = finalPosition.x - spaceship->sprite.getPosition().x;
+            float dy = finalPosition.y - spaceship->sprite.getPosition().y;
+            float distance = std::sqrt(dx * dx + dy * dy);
+
+            if (distance > spaceship->getRadius() * 3) {
+                validPosition = true;
+            }
+        } else {
+            validPosition = true;
+        }
+    }
+
     sf::Vector2f velocity = generateRandomVelocity();
     asteroids.emplace_back(asteroidTexture, size, finalPosition, velocity);
 }
@@ -163,15 +211,25 @@ void Game::checkCollisions() {
                 bullet.isActive = false;
                 asteroid.isActive = false;
 
+                score += asteroid.size * 10;
+                scoreText.setString("Score: " + std::to_string(score));
+
                 // Generate more asteroids in the same position that are smaller
                 if (asteroid.size > 1) {
-                    for (int i { 0 }; i < 3; ++i) {
+                    for (int i { 0 }; i < Utils::getRandomInRange(2, 5); ++i) {
                         spawnAsteroid(asteroid.size - 1, asteroid.sprite.getPosition());
                     }
                 }
             }
         }
     }
+
+    // Remove deactivated asteroids
+    asteroids.erase(std::remove_if(asteroids.begin(), asteroids.end(),
+                                   [](const Asteroid& asteroid) { return !asteroid.isActive; }),
+                    asteroids.end());
+
+    checkWinGame();
 }
 
 void Game::restartGame() {
@@ -188,3 +246,14 @@ void Game::restartGame() {
     }
 }
 
+void Game::checkWinGame() {
+    if (asteroids.empty()) {
+        window->clear();
+        window->draw(backgroundSprite);
+        window->draw(winText);
+        window->display();
+
+        sf::sleep(sf::seconds(3));
+        window->close();
+    }
+}

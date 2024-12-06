@@ -24,22 +24,31 @@ public:
     sf::SoundBuffer asteroidHitBuffer;
     sf::Sound asteroidHitSound;
 
+    void checkWinGame();
+    sf::Text winText;
+
     Game();
     ~Game() = default;
     void run();
 
 private:
     int lives;
+    sf::Text livesText;
+
     void gameOver();
     sf::Text gameOverText;
     sf::Font font;
+
+    int score;
+    sf::Text scoreText;
 
     void restartGame();
     void handleEvents();
     void update(float dt);
     void render();
-    void spawnAsteroid(int size, const std::optional<sf::Vector2f>& position = std::nullopt);
+    void spawnAsteroid(int size, const std::optional<sf::Vector2f>& position = std::nullopt, bool checkSpaceshipPosition = false);
     void checkCollisions();
     void checkSpaceshipAsteroidCollision();
 };
+
 #endif // GAME_H
