@@ -4,7 +4,7 @@
 #include <optional>
 #include <memory>
 
-Game::Game() {
+Game::Game() : lives(5) {
     window = std::make_unique<sf::RenderWindow>(sf::VideoMode(Constants::SIZE_X, Constants::SIZE_Y), "Asteroids");
 
     // Load game textures
@@ -34,6 +34,20 @@ Game::Game() {
     // Initial asteroids
     for (int i = 0; i < 7; ++i)
         spawnAsteroid(3);
+
+    // Load font and set up game over text
+    if (!font.loadFromFile("../../assets/fonts/arial.ttf")) {
+        throw std::runtime_error("Failed to load arial.ttf");
+    }
+    gameOverText.setFont(font);
+    gameOverText.setString("Game Over!");
+    gameOverText.setCharacterSize(50);
+    gameOverText.setFillColor(sf::Color::Red);
+    gameOverText.setStyle(sf::Text::Bold);
+    gameOverText.setPosition(
+        Constants::SIZE_X / 2.f - gameOverText.getGlobalBounds().width / 2.f,
+        Constants::SIZE_Y / 2.f - gameOverText.getGlobalBounds().height / 2.f
+    );
 }
 
 void Game::checkSpaceshipAsteroidCollision() {
@@ -44,18 +58,32 @@ void Game::checkSpaceshipAsteroidCollision() {
             float distance = std::sqrt(dx * dx + dy * dy);
             float combinedRadius = spaceship->getRadius() + asteroid.getRadius();
 
-            if (std::abs(distance - combinedRadius) < 0.05f) {
+            if (distance < combinedRadius) {
                 // Handle collision (e.g., deactivate spaceship and asteroid, play sound, etc.)
                 spaceship->isActive = false;
                 asteroid.isActive = false;
                 asteroidHitSound.play();
 
-                // Respawn the spaceship after a delay
-                sf::sleep(sf::seconds(1)); // Delay before respawning the spaceship
-                spaceship->respawn();
+                lives--;
+                if (lives > 0) {
+                    sf::sleep(sf::seconds(1)); // Delay before respawning the spaceship
+                    restartGame();
+                } else {
+                    gameOver();
+                }
             }
         }
     }
+}
+
+void Game::gameOver() {
+    window->clear();
+    window->draw(backgroundSprite);
+    window->draw(gameOverText);
+    window->display();
+
+    sf::sleep(sf::seconds(3));
+    window->close();
 }
 
 void Game::run() {
@@ -145,3 +173,18 @@ void Game::checkCollisions() {
         }
     }
 }
+
+void Game::restartGame() {
+    // Clear existing asteroids and bullets
+    asteroids.clear();
+    bullets.clear();
+
+    // Respawn the spaceship
+    spaceship->respawn();
+
+    // Spawn initial asteroids
+    for (int i = 0; i < 7; ++i) {
+        spawnAsteroid(3);
+    }
+}
+

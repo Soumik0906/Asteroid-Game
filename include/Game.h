@@ -29,6 +29,12 @@ public:
     void run();
 
 private:
+    int lives;
+    void gameOver();
+    sf::Text gameOverText;
+    sf::Font font;
+
+    void restartGame();
     void handleEvents();
     void update(float dt);
     void render();
