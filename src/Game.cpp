@@ -4,7 +4,7 @@
 #include <optional>
 #include <memory>
 
-Game::Game() : lives(5), score(0), paused(false) {
+Game::Game() : lives(5), score(0), paused(false), bulletCooldown(0.05f) {
     window = std::make_unique<sf::RenderWindow>(sf::VideoMode(Constants::SIZE_X, Constants::SIZE_Y), "Asteroids");
 
     // Load game textures
@@ -86,6 +86,8 @@ Game::Game() : lives(5), score(0), paused(false) {
         Constants::SIZE_X / 2.f - pauseText.getGlobalBounds().width / 2.f,
         Constants::SIZE_Y / 2.f - pauseText.getGlobalBounds().height / 2.f
     );
+
+    lastBulletTime = bulletClock.getElapsedTime();
 }
 
 void Game::togglePause() {
@@ -148,11 +150,15 @@ void Game::handleEvents() {
         if (event.type == sf::Event::Closed)
             window->close();
         if (event.type == sf::Event::KeyPressed) {
-            if (event.key.code == sf::Keyboard::Space) {
-                bulletFireSound.play();
-                bullets.emplace_back(bulletTexture, spaceship->sprite.getPosition(), spaceship->sprite.getRotation());
-            } else if (event.key.code == sf::Keyboard::P) {
+            if (event.key.code == sf::Keyboard::P) {
                 togglePause();
+            } else if (!paused && event.key.code == sf::Keyboard::Space) {
+                sf::Time currentTime = bulletClock.getElapsedTime();
+                if (currentTime - lastBulletTime >= sf::seconds(bulletCooldown) && bullets.size() <= 5) {
+                    bulletFireSound.play();
+                    bullets.emplace_back(bulletTexture, spaceship->sprite.getPosition(), spaceship->sprite.getRotation());
+                    lastBulletTime = currentTime;
+                }
             }
         }
     }

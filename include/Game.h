@@ -53,6 +53,10 @@ private:
     void spawnAsteroid(int size, const std::optional<sf::Vector2f>& position = std::nullopt, bool checkSpaceshipPosition = false);
     void checkCollisions();
     void checkSpaceshipAsteroidCollision();
+
+    float bulletCooldown;
+    sf::Clock bulletClock;
+    sf::Time lastBulletTime;
 };
 
 #endif // GAME_H
