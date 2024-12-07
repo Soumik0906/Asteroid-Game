@@ -11,9 +11,36 @@
 
 class Game {
 public:
-    bool paused;
-    sf::Text pauseText;
+    Game();
+    ~Game() = default;
+    void run();
+
+private:
+    void initializeWindow();
+    void loadResources();
+    void initializeGameObjects();
+    void initializeText();
+    void initializeTextObject(sf::Text& text, const std::string& str, unsigned int size, sf::Color color, float x, float y);
+
+    void handleEvents();
+    void handleBulletFire();
+    void update(float dt);
+    void render();
+
     void togglePause();
+    void checkCollisions();
+    void checkSpaceshipAsteroidCollision();
+    void checkWinGame();
+    void gameOver();
+    void restartGame();
+    void spawnAsteroid(int size, const std::optional<sf::Vector2f>& position = std::nullopt, bool checkSpaceshipPosition = false);
+    void displayMessage(const sf::Text& text);
+
+    bool paused;
+    int lives;
+    int score;
+    float bulletCooldown;
+    sf::Time lastBulletTime;
 
     std::unique_ptr<sf::RenderWindow> window;
     sf::Texture spaceshipTexture, asteroidTexture, bulletTexture, backgroundTexture;
@@ -22,41 +49,12 @@ public:
     std::vector<Asteroid> asteroids;
     std::vector<Bullet> bullets;
 
-    sf::SoundBuffer bulletFireBuffer;
-    sf::Sound bulletFireSound;
+    sf::SoundBuffer bulletFireBuffer, asteroidHitBuffer;
+    sf::Sound bulletFireSound, asteroidHitSound;
 
-    sf::SoundBuffer asteroidHitBuffer;
-    sf::Sound asteroidHitSound;
-
-    void checkWinGame();
-    sf::Text winText;
-
-    Game();
-    ~Game() = default;
-    void run();
-
-private:
-    int lives;
-    sf::Text livesText;
-
-    void gameOver();
-    sf::Text gameOverText;
     sf::Font font;
-
-    int score;
-    sf::Text scoreText;
-
-    void restartGame();
-    void handleEvents();
-    void update(float dt);
-    void render();
-    void spawnAsteroid(int size, const std::optional<sf::Vector2f>& position = std::nullopt, bool checkSpaceshipPosition = false);
-    void checkCollisions();
-    void checkSpaceshipAsteroidCollision();
-
-    float bulletCooldown;
+    sf::Text pauseText, gameOverText, scoreText, livesText, winText;
     sf::Clock bulletClock;
-    sf::Time lastBulletTime;
 };
 
 #endif // GAME_H

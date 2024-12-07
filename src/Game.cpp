@@ -4,97 +4,74 @@
 #include <optional>
 #include <memory>
 
+// Constructor
 Game::Game() : lives(5), score(0), paused(false), bulletCooldown(0.05f) {
+    initializeWindow();
+    loadResources();
+    initializeGameObjects();
+    initializeText();
+    lastBulletTime = bulletClock.getElapsedTime();
+}
+
+// Initialize the game window
+void Game::initializeWindow() {
     window = std::make_unique<sf::RenderWindow>(sf::VideoMode(Constants::SIZE_X, Constants::SIZE_Y), "Asteroids");
+}
 
-    // Load game textures
-    spaceshipTexture.loadFromFile("../../assets/images/spaceship.png");
-    asteroidTexture.loadFromFile("../../assets/images/asteroid.png");
-    bulletTexture.loadFromFile("../../assets/images/bullet.png");
-    backgroundTexture.loadFromFile("../../assets/images/space.jpg");
+// Load game resources (textures, sounds, fonts)
+void Game::loadResources() {
+    if (!spaceshipTexture.loadFromFile("../../assets/images/spaceship.png") ||
+        !asteroidTexture.loadFromFile("../../assets/images/asteroid.png") ||
+        !bulletTexture.loadFromFile("../../assets/images/bullet.png") ||
+        !backgroundTexture.loadFromFile("../../assets/images/space.jpg") ||
+        !bulletFireBuffer.loadFromFile("../../assets/sounds/bullet_fire.wav") ||
+        !asteroidHitBuffer.loadFromFile("../../assets/sounds/asteroid_hit.wav") ||
+        !font.loadFromFile("../../assets/fonts/arial.ttf")) {
+        throw std::runtime_error("Failed to load resources");
+    }
 
-    // Add background image
+    bulletFireSound.setBuffer(bulletFireBuffer);
+    asteroidHitSound.setBuffer(asteroidHitBuffer);
+}
+
+// Initialize game objects (spaceship, asteroids, background)
+void Game::initializeGameObjects() {
     backgroundSprite.setTexture(backgroundTexture);
     backgroundSprite.setScale(1.f, 2.f);
-
-    // Load game sounds
-    if (!bulletFireBuffer.loadFromFile("../../assets/sounds/bullet_fire.wav")) {
-        throw std::runtime_error("Failed to load bullet_fire.wav");
-    }
-    bulletFireSound.setBuffer(bulletFireBuffer);
-
-    if (!asteroidHitBuffer.loadFromFile("../../assets/sounds/asteroid_hit.wav")) {
-        throw std::runtime_error("Failed to load asteroid_hit.wav");
-    }
-    asteroidHitSound.setBuffer(asteroidHitBuffer);
 
     spaceship = std::make_unique<Spaceship>(spaceshipTexture);
     spaceship->sprite.setScale(Constants::spaceShipScale, Constants::spaceShipScale);
 
-    // Initial asteroids
-    for (int i = 0; i < 7; ++i)
+    for (int i = 0; i < 7; ++i) {
         spawnAsteroid(3, std::nullopt, true);
-
-    // Load font
-    if (!font.loadFromFile("../../assets/fonts/arial.ttf")) {
-        throw std::runtime_error("Failed to load arial.ttf");
     }
-
-    // Set up game over text
-    gameOverText.setFont(font);
-    gameOverText.setString("Game Over!");
-    gameOverText.setCharacterSize(50);
-    gameOverText.setFillColor(sf::Color::Red);
-    gameOverText.setStyle(sf::Text::Bold);
-    gameOverText.setPosition(
-        Constants::SIZE_X / 2.f - gameOverText.getGlobalBounds().width / 2.f,
-        Constants::SIZE_Y / 2.f - gameOverText.getGlobalBounds().height / 2.f
-    );
-
-    // Set up score text
-    scoreText.setFont(font);
-    scoreText.setCharacterSize(30);
-    scoreText.setFillColor(sf::Color::White);
-    scoreText.setPosition(10.f, 10.f);
-    scoreText.setString("Score: 0");
-
-    // Set up lives text
-    livesText.setFont(font);
-    livesText.setCharacterSize(30);
-    livesText.setFillColor(sf::Color::White);
-    livesText.setPosition(Constants::SIZE_X - 110.f, 10.f);
-    livesText.setString("Lives: " + std::to_string(lives));
-
-    // Set up win text
-    winText.setFont(font);
-    winText.setString("You Win!");
-    winText.setCharacterSize(50);
-    winText.setFillColor(sf::Color::Green);
-    winText.setStyle(sf::Text::Bold);
-    winText.setPosition(
-        Constants::SIZE_X / 2.f - winText.getGlobalBounds().width / 2.f,
-        Constants::SIZE_Y / 2.f - winText.getGlobalBounds().height / 2.f
-    );
-
-    // Set up pause text
-    pauseText.setFont(font);
-    pauseText.setString("Paused");
-    pauseText.setCharacterSize(50);
-    pauseText.setFillColor(sf::Color::Yellow);
-    pauseText.setStyle(sf::Text::Bold);
-    pauseText.setPosition(
-        Constants::SIZE_X / 2.f - pauseText.getGlobalBounds().width / 2.f,
-        Constants::SIZE_Y / 2.f - pauseText.getGlobalBounds().height / 2.f
-    );
-
-    lastBulletTime = bulletClock.getElapsedTime();
 }
 
+// Initialize text objects (game over, score, lives, win, pause)
+void Game::initializeText() {
+    initializeTextObject(gameOverText, "Game Over!", 50, sf::Color::Red, Constants::SIZE_X / 2.f, Constants::SIZE_Y / 2.f);
+    initializeTextObject(scoreText, "Score: 0", 30, sf::Color::White, 60.f, 10.f);
+    initializeTextObject(livesText, "Lives: " + std::to_string(lives), 30, sf::Color::White, Constants::SIZE_X - 60.f, 10.f);
+    initializeTextObject(winText, "You Win!", 50, sf::Color::Green, Constants::SIZE_X / 2.f, Constants::SIZE_Y / 2.f);
+    initializeTextObject(pauseText, "Paused", 50, sf::Color::Yellow, Constants::SIZE_X / 2.f, Constants::SIZE_Y / 2.f);
+}
+
+// Helper function to initialize a text object
+void Game::initializeTextObject(sf::Text& text, const std::string& str, unsigned int size, sf::Color color, float x, float y) {
+    text.setFont(font);
+    text.setString(str);
+    text.setCharacterSize(size);
+    text.setFillColor(color);
+    text.setStyle(sf::Text::Bold);
+    text.setPosition(x - text.getGlobalBounds().width / 2.f, y - text.getGlobalBounds().height / 2.f);
+}
+
+// Toggle pause state
 void Game::togglePause() {
     paused = !paused;
 }
 
-
+// Check for collisions between spaceship and asteroids
 void Game::checkSpaceshipAsteroidCollision() {
     for (auto& asteroid : asteroids) {
         if (spaceship->checkCollision(asteroid)) {
@@ -111,16 +88,14 @@ void Game::checkSpaceshipAsteroidCollision() {
     }
 }
 
+// Handle game over state
 void Game::gameOver() {
-    window->clear();
-    window->draw(backgroundSprite);
-    window->draw(gameOverText);
-    window->display();
-
+    displayMessage(gameOverText);
     sf::sleep(sf::seconds(3));
     window->close();
 }
 
+// Run the game loop
 void Game::run() {
     sf::Clock clock;
     while (window->isOpen()) {
@@ -133,26 +108,34 @@ void Game::run() {
     }
 }
 
+// Handle game events
 void Game::handleEvents() {
     sf::Event event{};
     while (window->pollEvent(event)) {
-        if (event.type == sf::Event::Closed)
+        if (event.type == sf::Event::Closed) {
             window->close();
+        }
         if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::P) {
                 togglePause();
             } else if (!paused && event.key.code == sf::Keyboard::Space) {
-                sf::Time currentTime = bulletClock.getElapsedTime();
-                if (currentTime - lastBulletTime >= sf::seconds(bulletCooldown) && bullets.size() <= 5) {
-                    bulletFireSound.play();
-                    bullets.emplace_back(bulletTexture, spaceship->sprite.getPosition(), spaceship->sprite.getRotation());
-                    lastBulletTime = currentTime;
-                }
+                handleBulletFire();
             }
         }
     }
 }
 
+// Handle bullet firing
+void Game::handleBulletFire() {
+    sf::Time currentTime = bulletClock.getElapsedTime();
+    if (currentTime - lastBulletTime >= sf::seconds(bulletCooldown) && bullets.size() <= 5) {
+        bulletFireSound.play();
+        bullets.emplace_back(bulletTexture, spaceship->sprite.getPosition(), spaceship->sprite.getRotation());
+        lastBulletTime = currentTime;
+    }
+}
+
+// Update game state
 void Game::update(const float dt) {
     if (spaceship->isActive) {
         spaceship->update(dt);
@@ -173,16 +156,19 @@ void Game::update(const float dt) {
     checkCollisions();
 }
 
+// Render game objects
 void Game::render() {
     window->clear();
     window->draw(backgroundSprite);
     if (spaceship->isActive) {
         spaceship->draw(*window);
     }
-    for (auto& asteroid : asteroids)
+    for (auto& asteroid : asteroids) {
         asteroid.draw(*window);
-    for (auto& bullet : bullets)
+    }
+    for (auto& bullet : bullets) {
         bullet.draw(*window);
+    }
     window->draw(scoreText);
     window->draw(livesText);
     if (paused) {
@@ -191,6 +177,7 @@ void Game::render() {
     window->display();
 }
 
+// Generate random velocity for asteroids
 sf::Vector2f generateRandomVelocity() {
     return sf::Vector2f(
         Utils::getRandomInRange(-Constants::maxAsteroidSpeed, Constants::maxAsteroidSpeed),
@@ -198,6 +185,7 @@ sf::Vector2f generateRandomVelocity() {
     );
 }
 
+// Spawn a new asteroid
 void Game::spawnAsteroid(int size, const std::optional<sf::Vector2f>& position, bool checkSpaceshipPosition) {
     sf::Vector2f finalPosition;
     bool validPosition = false;
@@ -224,7 +212,7 @@ void Game::spawnAsteroid(int size, const std::optional<sf::Vector2f>& position, 
     asteroids.emplace_back(asteroidTexture, size, finalPosition, velocity);
 }
 
-
+// Check for collisions between bullets and asteroids
 void Game::checkCollisions() {
     checkSpaceshipAsteroidCollision();
 
@@ -257,28 +245,19 @@ void Game::checkCollisions() {
     checkWinGame();
 }
 
-void Game::restartGame() {
-    // Clear existing asteroids and bullets
-    asteroids.clear();
-    bullets.clear();
-
-    // Respawn the spaceship
-    spaceship->respawn();
-
-    // Spawn initial asteroids
-    for (int i = 0; i < 7; ++i) {
-        spawnAsteroid(3);
-    }
-}
-
+// Check if the player has won the game
 void Game::checkWinGame() {
     if (asteroids.empty()) {
-        window->clear();
-        window->draw(backgroundSprite);
-        window->draw(winText);
-        window->display();
-
+        displayMessage(winText);
         sf::sleep(sf::seconds(3));
         window->close();
     }
+}
+
+// Display a message on the screen
+void Game::displayMessage(const sf::Text& text) {
+    window->clear();
+    window->draw(backgroundSprite);
+    window->draw(text);
+    window->display();
 }
