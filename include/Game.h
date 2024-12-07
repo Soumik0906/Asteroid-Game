@@ -10,7 +10,7 @@
 #include <optional>
 #include <memory>
 
-enum class GameState { MENU, PLAYING, GAME_OVER };
+enum class GameState { MENU, PLAYING, GAME_OVER, SETTINGS };
 
 class Game {
 public:

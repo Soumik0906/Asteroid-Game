@@ -132,6 +132,7 @@ void Game::handleMenuEvents() {
             } else if (event.key.code == sf::Keyboard::Enter) {
                 if (menu.getSelectedItemIndex() == 0) {
                     gameState = GameState::PLAYING;
+                    menu.toggleMusic();
                 } else if (menu.getSelectedItemIndex() == 1) {
                     window->close();
                 }

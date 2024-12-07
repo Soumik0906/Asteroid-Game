@@ -5,7 +5,13 @@ Menu::Menu(float width, float height) : selectedItemIndex(0) {
         throw std::runtime_error("Failed to load arial.ttf");
     }
 
-    std::vector<std::string> items = {"PLAY", "EXIT"};
+    if (!backgroundMusic.openFromFile("../../assets/sounds/menu_music.ogg")) {
+        throw std::runtime_error("Failed to load menu_music.ogg");
+    }
+
+    toggleMusic();
+
+    std::vector<std::string> items = {"PLAY", "SETTINGS", "EXIT"};
     for (size_t i = 0; i < items.size(); ++i) {
         sf::Text text;
         text.setFont(font);
@@ -37,4 +43,13 @@ void Menu::moveDown() {
 
 int Menu::getSelectedItemIndex() const {
     return selectedItemIndex;
+}
+
+void Menu::toggleMusic() {
+    if (backgroundMusic.getStatus() == sf::Music::Playing) {
+        backgroundMusic.stop();
+    } else {
+        backgroundMusic.setLoop(true);
+        backgroundMusic.play();
+    }
 }
