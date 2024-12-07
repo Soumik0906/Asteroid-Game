@@ -4,10 +4,13 @@
 #include "Spaceship.h"
 #include "Asteroid.h"
 #include "Bullet.h"
+#include "Menu.h"
 #include <SFML/Audio.hpp>
 #include <vector>
 #include <optional>
 #include <memory>
+
+enum class GameState { MENU, PLAYING, GAME_OVER };
 
 class Game {
 public:
@@ -23,6 +26,8 @@ private:
     void initializeTextObject(sf::Text& text, const std::string& str, unsigned int size, sf::Color color, float x, float y);
 
     void handleEvents();
+    void handleMenuEvents();
+    void handleGameEvents();
     void handleBulletFire();
     void update(float dt);
     void render();
@@ -55,6 +60,9 @@ private:
     sf::Font font;
     sf::Text pauseText, gameOverText, scoreText, livesText, winText;
     sf::Clock bulletClock;
+
+    GameState gameState;
+    Menu menu;
 };
 
 #endif // GAME_H

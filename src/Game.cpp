@@ -5,7 +5,7 @@
 #include <memory>
 
 // Constructor
-Game::Game() : lives(5), score(0), paused(false), bulletCooldown(0.05f) {
+Game::Game() : lives(5), score(0), paused(false), bulletCooldown(0.05f), gameState(GameState::MENU), menu(Constants::SIZE_X, Constants::SIZE_Y) {
     initializeWindow();
     loadResources();
     initializeGameObjects();
@@ -101,7 +101,7 @@ void Game::run() {
     while (window->isOpen()) {
         const float dt = clock.restart().asSeconds();
         handleEvents();
-        if (!paused) {
+        if (gameState == GameState::PLAYING && !paused) {
             update(dt);
         }
         render();
@@ -110,6 +110,38 @@ void Game::run() {
 
 // Handle game events
 void Game::handleEvents() {
+    if (gameState == GameState::MENU) {
+        handleMenuEvents();
+    } else if (gameState == GameState::PLAYING) {
+        handleGameEvents();
+    }
+}
+
+// Handle menu events
+void Game::handleMenuEvents() {
+    sf::Event event{};
+    while (window->pollEvent(event)) {
+        if (event.type == sf::Event::Closed) {
+            window->close();
+        }
+        if (event.type == sf::Event::KeyPressed) {
+            if (event.key.code == sf::Keyboard::Up) {
+                menu.moveUp();
+            } else if (event.key.code == sf::Keyboard::Down) {
+                menu.moveDown();
+            } else if (event.key.code == sf::Keyboard::Enter) {
+                if (menu.getSelectedItemIndex() == 0) {
+                    gameState = GameState::PLAYING;
+                } else if (menu.getSelectedItemIndex() == 1) {
+                    window->close();
+                }
+            }
+        }
+    }
+}
+
+// Handle game events
+void Game::handleGameEvents() {
     sf::Event event{};
     while (window->pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
@@ -160,19 +192,23 @@ void Game::update(const float dt) {
 void Game::render() {
     window->clear();
     window->draw(backgroundSprite);
-    if (spaceship->isActive) {
-        spaceship->draw(*window);
-    }
-    for (auto& asteroid : asteroids) {
-        asteroid.draw(*window);
-    }
-    for (auto& bullet : bullets) {
-        bullet.draw(*window);
-    }
-    window->draw(scoreText);
-    window->draw(livesText);
-    if (paused) {
-        window->draw(pauseText);
+    if (gameState == GameState::MENU) {
+        menu.draw(*window);
+    } else if (gameState == GameState::PLAYING) {
+        if (spaceship->isActive) {
+            spaceship->draw(*window);
+        }
+        for (auto& asteroid : asteroids) {
+            asteroid.draw(*window);
+        }
+        for (auto& bullet : bullets) {
+            bullet.draw(*window);
+        }
+        window->draw(scoreText);
+        window->draw(livesText);
+        if (paused) {
+            window->draw(pauseText);
+        }
     }
     window->display();
 }
