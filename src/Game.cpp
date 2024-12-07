@@ -33,7 +33,7 @@ Game::Game() : lives(5), score(0), paused(false), bulletCooldown(0.05f) {
 
     // Initial asteroids
     for (int i = 0; i < 7; ++i)
-        spawnAsteroid(3);
+        spawnAsteroid(3, std::nullopt, true);
 
     // Load font
     if (!font.loadFromFile("../../assets/fonts/arial.ttf")) {
@@ -97,26 +97,15 @@ void Game::togglePause() {
 
 void Game::checkSpaceshipAsteroidCollision() {
     for (auto& asteroid : asteroids) {
-        if (spaceship->isActive && asteroid.isActive) {
-            float dx = spaceship->sprite.getPosition().x - asteroid.sprite.getPosition().x;
-            float dy = spaceship->sprite.getPosition().y - asteroid.sprite.getPosition().y;
-            float distance = std::sqrt(dx * dx + dy * dy);
-            float combinedRadius = spaceship->getRadius() + asteroid.getRadius();
-
-            if (distance < combinedRadius) {
-                // Handle collision
-                spaceship->isActive = false;
-                //asteroid.isActive = false;
-                asteroidHitSound.play();
-
-                lives--;
-                livesText.setString("Lives: " + std::to_string(lives));
-                if (lives > 0) {
-                    sf::sleep(sf::seconds(0.5)); // Delay before respawning the spaceship
-                    spaceship->respawn();
-                } else {
-                    gameOver();
-                }
+        if (spaceship->checkCollision(asteroid)) {
+            spaceship->isActive = false;
+            asteroidHitSound.play();
+            --lives;
+            livesText.setString("Lives: " + std::to_string(lives));
+            if (lives > 0) {
+                spaceship->respawn();
+            } else {
+                gameOver();
             }
         }
     }
@@ -165,14 +154,17 @@ void Game::handleEvents() {
 }
 
 void Game::update(const float dt) {
-    spaceship->update(dt);
+    if (spaceship->isActive) {
+        spaceship->update(dt);
+    }
 
     for (auto& asteroid : asteroids) {
         asteroid.update(dt);
     }
 
-    for (auto& bullet : bullets)
+    for (auto& bullet : bullets) {
         bullet.update(dt);
+    }
 
     bullets.erase(std::ranges::remove_if(bullets,
                                          [this](const Bullet& b) { return b.isOutOfBounds(*window); }).begin(),
@@ -184,7 +176,9 @@ void Game::update(const float dt) {
 void Game::render() {
     window->clear();
     window->draw(backgroundSprite);
-    spaceship->draw(*window);
+    if (spaceship->isActive) {
+        spaceship->draw(*window);
+    }
     for (auto& asteroid : asteroids)
         asteroid.draw(*window);
     for (auto& bullet : bullets)
