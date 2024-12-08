@@ -10,7 +10,7 @@ Game::Game()
       menu(Constants::windowWidth, Constants::windowHeight), settings(Constants::windowWidth, Constants::windowHeight) {
 
     resourceManager.loadResources();
-    gameObjectManager.initializeGameObjects(resourceManager.getSpaceshipTexture(), resourceManager.getAsteroidTexture(), resourceManager.getBackgroundTexture(), *windowManager.getWindow());
+    gameObjectManager.initializeGameObjects(resourceManager.getSpaceshipTexture(), resourceManager.getExhaustTexture(), resourceManager.getAsteroidTexture(), resourceManager.getBackgroundTexture(), *windowManager.getWindow());
     textManager.initializeTextObjects(resourceManager.getFont(), lives);
     bulletFireSound.setBuffer(resourceManager.getBulletFireBuffer());
     asteroidHitSound.setBuffer(resourceManager.getAsteroidHitBuffer());
@@ -117,6 +117,7 @@ void Game::render() {
     } else if (gameState == GameState::PLAYING) {
         if (gameObjectManager.getSpaceship()->isActive) {
             gameObjectManager.getSpaceship()->draw(*windowManager.getWindow());
+            windowManager.getWindow()->draw(gameObjectManager.getSpaceship()->getFireSprite());
         }
         for (auto& asteroid : gameObjectManager.getAsteroids()) {
             asteroid.draw(*windowManager.getWindow());

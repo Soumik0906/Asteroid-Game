@@ -7,11 +7,13 @@
 
 class Spaceship final : public Entity {
 public:
-    explicit Spaceship(const sf::Texture& texture);
+    Spaceship(const sf::Texture& spaceShipTexture, const sf::Texture& exhaustTexture);
     void handleInput(float dt);
     void update(float dt) override;
     bool checkCollision(const Asteroid& asteroid) const;
     void respawn();
+
+    const sf::Sprite& getFireSprite() const;
 
 private:
     void initializeSprite(const sf::Texture& texture);
@@ -21,6 +23,8 @@ private:
     void handleFriction(float dt);
     void clampVelocity();
     void applyFriction(float dt);
+
+    sf::Sprite exhaustSprite;
 
     sf::SoundBuffer spaceshipSoundBuffer;
     sf::Sound spaceshipSound;

@@ -2,9 +2,12 @@
 #include "Utilities.h"
 #include <cmath>
 
-Spaceship::Spaceship(const sf::Texture& texture) {
-    initializeSprite(texture);
+Spaceship::Spaceship(const sf::Texture& spaceShipTexture, const sf::Texture& exhaustTexture) {
+    initializeSprite(spaceShipTexture);
     initializeSound();
+    exhaustSprite.setTexture(exhaustTexture);
+    exhaustSprite.setOrigin(static_cast<float>(exhaustTexture.getSize().x) / 2.f, static_cast<float>(exhaustTexture.getSize().y) / 2.f);
+    exhaustSprite.setScale(1.3f, 1.3f);
 }
 
 void Spaceship::initializeSprite(const sf::Texture& texture) {
@@ -48,8 +51,17 @@ void Spaceship::handleThrust(const float dt) {
         }
         velocity.x += xIncrement;
         velocity.y += yIncrement;
+
+        // Position the exhaust sprite behind the spaceship
+        const float exhaustOffsetX = -std::cos(rotationInRadians) * (sprite.getGlobalBounds().height / 2.f);
+        const float exhaustOffsetY = -std::sin(rotationInRadians) * (sprite.getGlobalBounds().height / 2.f);
+
+        exhaustSprite.setPosition(sprite.getPosition().x + exhaustOffsetX, sprite.getPosition().y + exhaustOffsetY);
+        exhaustSprite.setRotation(sprite.getRotation() - 180.f);
+        exhaustSprite.setColor(sf::Color(255, 255, 255, 255));
     } else {
         spaceshipSound.stop();
+        exhaustSprite.setColor(sf::Color(255, 255, 255, 0));
     }
 }
 
@@ -89,4 +101,8 @@ void Spaceship::respawn() {
     sprite.setPosition(Constants::windowWidth / 2.f, Constants::windowHeight / 2.f);
     velocity = sf::Vector2f(0.f, 0.f);
     isActive = true;
+}
+
+const sf::Sprite& Spaceship::getFireSprite() const {
+    return exhaustSprite;
 }

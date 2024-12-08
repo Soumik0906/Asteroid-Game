@@ -10,9 +10,8 @@
 
 class GameObjectManager {
 public:
+    void initializeGameObjects(const sf::Texture& spaceshipTexture, const sf::Texture& exhaustTexture, const sf::Texture& asteroidTexture, const sf::Texture& backgroundTexture, sf::RenderWindow& window);
     void spawnAsteroid(int size, const sf::Texture& asteroidTexture, const std::optional<sf::Vector2f>& position = std::nullopt, bool checkSpaceshipPosition = false);
-    void initializeGameObjects(sf::Texture& spaceshipTexture, const sf::Texture& asteroidTexture, const sf::Texture& backgroundTexture, sf::RenderWindow& window);
-
     std::unique_ptr<Spaceship>& getSpaceship();
     std::vector<Asteroid>& getAsteroids();
     std::vector<Bullet>& getBullets();

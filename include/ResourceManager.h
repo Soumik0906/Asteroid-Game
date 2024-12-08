@@ -3,7 +3,6 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-#include <stdexcept>
 
 class ResourceManager {
 public:
@@ -12,12 +11,13 @@ public:
     sf::Texture& getAsteroidTexture();
     sf::Texture& getBulletTexture();
     sf::Texture& getBackgroundTexture();
+    sf::Texture& getExhaustTexture();
     sf::SoundBuffer& getBulletFireBuffer();
     sf::SoundBuffer& getAsteroidHitBuffer();
     sf::Font& getFont();
 
 private:
-    sf::Texture spaceshipTexture, asteroidTexture, bulletTexture, backgroundTexture;
+    sf::Texture spaceshipTexture, asteroidTexture, bulletTexture, backgroundTexture, exhaustTexture;
     sf::SoundBuffer bulletFireBuffer, asteroidHitBuffer;
     sf::Font font;
 };
