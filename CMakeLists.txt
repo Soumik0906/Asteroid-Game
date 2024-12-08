@@ -25,7 +25,10 @@ add_executable(main
         src/Menu.cpp
         src/Settings.cpp
         src/MenuBase.cpp
-        include/MenuBase.h
+        src/WindowManager.cpp
+        src/ResourceManager.cpp
+        src/GameObjectManager.cpp
+        src/TextManager.cpp
 )
 
 target_link_libraries(main PRIVATE sfml-graphics sfml-audio)
