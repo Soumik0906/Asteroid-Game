@@ -15,5 +15,5 @@ Bullet::Bullet(const sf::Texture& texture, const sf::Vector2f& position, const f
 
 bool Bullet::isOutOfBounds(const sf::RenderWindow& window) const {
     const auto pos = sprite.getPosition();
-    return pos.x < 0 || pos.x > static_cast<float>(Constants::SIZE_X) || pos.y < 0 || pos.y > static_cast<float>(Constants::SIZE_Y);
+    return pos.x < 0 || pos.x > static_cast<float>(Constants::windowWidth) || pos.y < 0 || pos.y > static_cast<float>(Constants::windowHeight);
 }

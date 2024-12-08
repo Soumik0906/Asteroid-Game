@@ -12,8 +12,8 @@ namespace Constants {
     inline constexpr float maxAsteroidSpeed = 100.f;
     inline constexpr float spaceShipScale = 2.f;
     // Window sizes
-    inline constexpr float SIZE_X = 1000.f;
-    inline constexpr float SIZE_Y = 1000.f;
+    inline constexpr float windowWidth = 1000.f;
+    inline constexpr float windowHeight = 1000.f;
 }
 
 namespace Utils {

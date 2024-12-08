@@ -10,7 +10,7 @@ Spaceship::Spaceship(const sf::Texture& texture) {
 void Spaceship::initializeSprite(const sf::Texture& texture) {
     sprite.setTexture(texture);
     sprite.setOrigin(static_cast<float>(texture.getSize().x) / 2.f, static_cast<float>(texture.getSize().y) / 2.f);
-    sprite.setPosition(Constants::SIZE_X / 2.f, Constants::SIZE_Y / 2.f); // Initial position
+    sprite.setPosition(Constants::windowWidth / 2.f, Constants::windowHeight / 2.f); // Initial position
     rotationSpeed = Constants::rotationSpeed;
     acceleration = Constants::acceleration;
 }
@@ -86,7 +86,7 @@ bool Spaceship::checkCollision(const Asteroid &asteroid) const {
 }
 
 void Spaceship::respawn() {
-    sprite.setPosition(Constants::SIZE_X / 2.f, Constants::SIZE_Y / 2.f);
+    sprite.setPosition(Constants::windowWidth / 2.f, Constants::windowHeight / 2.f);
     velocity = sf::Vector2f(0.f, 0.f);
     isActive = true;
 }

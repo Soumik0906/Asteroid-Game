@@ -12,10 +12,10 @@ float Entity::getRadius() const {
 }
 
 void Entity::wrapAroundScreen() {
-    if (sprite.getPosition().x < 0.f) sprite.setPosition(Constants::SIZE_X, sprite.getPosition().y);
-    if (sprite.getPosition().x > Constants::SIZE_X) sprite.setPosition(0.f, sprite.getPosition().y);
-    if (sprite.getPosition().y < 0.f) sprite.setPosition(sprite.getPosition().x, Constants::SIZE_Y);
-    if (sprite.getPosition().y > Constants::SIZE_Y) sprite.setPosition(sprite.getPosition().x, 0.f);
+    if (sprite.getPosition().x < 0.f) sprite.setPosition(Constants::windowWidth, sprite.getPosition().y);
+    if (sprite.getPosition().x > Constants::windowWidth) sprite.setPosition(0.f, sprite.getPosition().y);
+    if (sprite.getPosition().y < 0.f) sprite.setPosition(sprite.getPosition().x, Constants::windowHeight);
+    if (sprite.getPosition().y > Constants::windowHeight) sprite.setPosition(sprite.getPosition().x, 0.f);
 }
 
 void Entity::draw(sf::RenderWindow& window) {
