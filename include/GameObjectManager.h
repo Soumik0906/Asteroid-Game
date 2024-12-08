@@ -10,7 +10,7 @@
 
 class GameObjectManager {
 public:
-    void initializeGameObjects(sf::Texture& spaceshipTexture, sf::Texture& asteroidTexture, sf::Texture& backgroundTexture, sf::RenderWindow& window);
+    void initializeGameObjects(const sf::Texture& spaceshipTexture, const sf::Texture& exhaustTexture, const sf::Texture& asteroidTexture, const sf::Texture& backgroundTexture, sf::RenderWindow& window);
     std::unique_ptr<Spaceship>& getSpaceship();
     std::vector<Asteroid>& getAsteroids();
     std::vector<Bullet>& getBullets();

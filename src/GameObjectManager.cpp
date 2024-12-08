@@ -1,11 +1,17 @@
 #include "GameObjectManager.h"
 #include "Utilities.h"
 
-void GameObjectManager::initializeGameObjects(sf::Texture& spaceshipTexture, sf::Texture& asteroidTexture, sf::Texture& backgroundTexture, sf::RenderWindow& window) {
+void GameObjectManager::initializeGameObjects(
+    const sf::Texture& spaceshipTexture,
+    const sf::Texture& exhaustTexture,
+    const sf::Texture& asteroidTexture,
+    const sf::Texture& backgroundTexture,
+    sf::RenderWindow& window
+) {
     backgroundSprite.setTexture(backgroundTexture);
     backgroundSprite.setScale(1.f, 2.f);
 
-    spaceship = std::make_unique<Spaceship>(spaceshipTexture);
+    spaceship = std::make_unique<Spaceship>(spaceshipTexture, exhaustTexture);
     spaceship->sprite.setScale(2.f, 2.f);
 
     for (int i = 0; i < 7; ++i) {
