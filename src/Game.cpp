@@ -5,7 +5,7 @@
 #include <memory>
 
 // Constructor
-Game::Game() : lives(5), score(0), paused(false), bulletCooldown(0.05f), gameState(GameState::MENU), menu(Constants::SIZE_X, Constants::SIZE_Y) {
+Game::Game() : lives(5), score(0), paused(false), bulletCooldown(0.05f), gameState(GameState::MENU), menu(Constants::SIZE_X, Constants::SIZE_Y), settings(Constants::SIZE_X, Constants::SIZE_Y) {
     initializeWindow();
     loadResources();
     initializeGameObjects();
@@ -114,6 +114,8 @@ void Game::handleEvents() {
         handleMenuEvents();
     } else if (gameState == GameState::PLAYING) {
         handleGameEvents();
+    } else if (gameState == GameState::SETTINGS) {
+        handleSettingsEvents();
     }
 }
 
@@ -134,6 +136,8 @@ void Game::handleMenuEvents() {
                     gameState = GameState::PLAYING;
                     menu.toggleMusic();
                 } else if (menu.getSelectedItemIndex() == 1) {
+                    gameState = GameState::SETTINGS;
+                } else if (menu.getSelectedItemIndex() == 2) {
                     window->close();
                 }
             }
@@ -210,6 +214,8 @@ void Game::render() {
         if (paused) {
             window->draw(pauseText);
         }
+    } else if (gameState == GameState::SETTINGS) {
+        settings.draw(*window);
     }
     window->display();
 }
@@ -297,4 +303,25 @@ void Game::displayMessage(const sf::Text& text) {
     window->draw(backgroundSprite);
     window->draw(text);
     window->display();
+}
+
+// Handle game settings events
+void Game::handleSettingsEvents() {
+    sf::Event event{};
+    while (window->pollEvent(event)) {
+        if (event.type == sf::Event::Closed) {
+            window->close();
+        }
+        if (event.type == sf::Event::KeyPressed) {
+            if (event.key.code == sf::Keyboard::Up) {
+                settings.moveUp();
+            } else if (event.key.code == sf::Keyboard::Down) {
+                settings.moveDown();
+            } else if (event.key.code == sf::Keyboard::Enter) {
+                if (settings.getSelectedItemIndex() == 2) { // "Back" option
+                    gameState = GameState::MENU;
+                }
+            }
+        }
+    }
 }

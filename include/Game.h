@@ -5,6 +5,7 @@
 #include "Asteroid.h"
 #include "Bullet.h"
 #include "Menu.h"
+#include "Settings.h"
 #include <SFML/Audio.hpp>
 #include <vector>
 #include <optional>
@@ -31,6 +32,8 @@ private:
     void handleBulletFire();
     void update(float dt);
     void render();
+
+    void handleSettingsEvents();
 
     void togglePause();
     void checkCollisions();
@@ -63,6 +66,8 @@ private:
 
     GameState gameState;
     Menu menu;
+
+    Settings settings;
 };
 
 #endif // GAME_H
