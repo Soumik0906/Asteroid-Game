@@ -1,6 +1,7 @@
 #include "Entity.h"
 #include "Utilities.h"
 
+
 Entity::Entity() : velocity(0.f, 0.f), isActive(true) {}
 
 void Entity::update(const float dt) {

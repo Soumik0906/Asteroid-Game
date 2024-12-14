@@ -1,3 +1,4 @@
+
 #include "MenuBase.h"
 
 MenuBase::MenuBase(float width, float height, const std::vector<std::string>& items) : selectedItemIndex(0) {
