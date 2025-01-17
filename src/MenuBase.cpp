@@ -2,7 +2,7 @@
 #include "MenuBase.h"
 
 MenuBase::MenuBase(float width, float height, const std::vector<std::string>& items) : selectedItemIndex(0) {
-    if (!font.loadFromFile("../../assets/fonts/arial.ttf")) {
+    if (!font.loadFromFile(ROOT_DIR "/assets/fonts/arial.ttf")) {
         throw std::runtime_error("Failed to load arial.ttf");
     }
 

@@ -1,14 +1,14 @@
 #include "ResourceManager.h"
 
 void ResourceManager::loadResources() {
-    if (!spaceshipTexture.loadFromFile("../../assets/images/spaceship.png") ||
-        !asteroidTexture.loadFromFile("../../assets/images/asteroid.png") ||
-        !bulletTexture.loadFromFile("../../assets/images/bullet.png") ||
-        !backgroundTexture.loadFromFile("../../assets/images/space.jpg") ||
-        !exhaustTexture.loadFromFile("../../assets/gifs/blue_fire.gif") ||
-        !bulletFireBuffer.loadFromFile("../../assets/sounds/bullet_fire.wav") ||
-        !asteroidHitBuffer.loadFromFile("../../assets/sounds/asteroid_hit.wav") ||
-        !font.loadFromFile("../../assets/fonts/arial.ttf")) {
+    if (!spaceshipTexture.loadFromFile(ROOT_DIR "/assets/images/spaceship.png") ||
+        !asteroidTexture.loadFromFile(ROOT_DIR "/assets/images/asteroid.png") ||
+        !bulletTexture.loadFromFile(ROOT_DIR "/assets/images/bullet.png") ||
+        !backgroundTexture.loadFromFile(ROOT_DIR "/assets/images/space.jpg") ||
+        !exhaustTexture.loadFromFile(ROOT_DIR "/assets/gifs/blue_fire.gif") ||
+        !bulletFireBuffer.loadFromFile(ROOT_DIR "/assets/sounds/bullet_fire.wav") ||
+        !asteroidHitBuffer.loadFromFile(ROOT_DIR "/assets/sounds/asteroid_hit.wav") ||
+        !font.loadFromFile(ROOT_DIR "/assets/fonts/arial.ttf")) {
         throw std::runtime_error("Failed to load resources");
     }
 }

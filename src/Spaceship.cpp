@@ -19,7 +19,7 @@ void Spaceship::initializeSprite(const sf::Texture& texture) {
 }
 
 void Spaceship::initializeSound() {
-    if (!spaceshipSoundBuffer.loadFromFile("../../assets/sounds/spaceship_engine.ogg")) {
+    if (!spaceshipSoundBuffer.loadFromFile(ROOT_DIR "/assets/sounds/spaceship_engine.ogg")) {
         throw std::runtime_error("Failed to load spaceship_engine.ogg");
     }
     spaceshipSound.setBuffer(spaceshipSoundBuffer);

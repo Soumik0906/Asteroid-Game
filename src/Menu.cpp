@@ -1,7 +1,7 @@
 #include "Menu.h"
 
 Menu::Menu(float width, float height) : MenuBase(width, height, {"PLAY", "SETTINGS", "EXIT"}) {
-    if (!backgroundMusic.openFromFile("../../assets/sounds/menu_music.ogg")) {
+    if (!backgroundMusic.openFromFile(ROOT_DIR "/assets/sounds/menu_music.ogg")) {
         throw std::runtime_error("Failed to load menu_music.ogg");
     }
 
